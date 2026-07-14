@@ -7,10 +7,6 @@ OOP based project in c++
 A console-based **Hotel Booking Management System** written in modern C++ (C++17). It demonstrates
 object-oriented design (inheritance, polymorphism, encapsulation, abstract classes), STL containers,
 smart pointers, regex input validation, custom exceptions, and file-based persistence.
-
-> Note: The source file is named `Hotell_no_loyalty.cpp` — this is the **no-loyalty** variant
-> (the loyalty-points feature has been removed).
-
 ---
 
 ## Features
