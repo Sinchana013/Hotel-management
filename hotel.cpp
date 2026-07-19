@@ -1,9 +1,7 @@
 /* ======================================
    Hotel Booking System with Loyalty Program
    The Hotel Booking System with Loyalty Program is a C++ application designed to manage hotel room bookings
-   efficiently and reward loyal customers. It features room management, customer tracking, and a
-   loyalty program,utilizing various standard libraries for robust functionality.
-   Custom exception handling ensures graceful error management and a smooth user experience
+   efficiently and reward loyal customers.
    ====================================== */
 
 #include <iostream>      // For standard input and output
