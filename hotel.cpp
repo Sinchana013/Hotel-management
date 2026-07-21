@@ -4,6 +4,8 @@
    efficiently and reward loyal customers.
    ====================================== */
 
+
+
 #include <iostream>      // For standard input and output
 #include <string>        // For using string class
 #include <vector>        // For using vector container
@@ -24,20 +26,20 @@ using namespace std;
 
 // Custom Exceptions
 /*
- * @class BookingException
- * @brief Exception class for handling booking related errors.
+  BookingException
+  Exception class for handling booking related errors.
  */
 class BookingException : public exception {
     string message;
 public:
 /*
-     * @brief Constructor for BookingException.
-     * @param msg Error message.
+     Constructor for BookingException.
+      msg Error message.
      */
     BookingException(const string& msg) : message(msg) {}
     /*
-     * @brief Override what() method to return error message.
-     * @return Error message.
+     Override what() method to return error message.
+    Error message.
      */
     const char* what() const noexcept override {
         return message.c_str();
@@ -55,8 +57,8 @@ public:
 
 // Room base class
 /*
- * @class Room
- * @brief Abstract base class for different types of rooms.
+s Room
+ Abstract base class for different types of rooms.
  */
 class Room {
 protected:
@@ -66,13 +68,13 @@ protected:
 
 public:
     /*
-     * @brief Constructor for Room.
-     * @param number Room number.
-     * @param price Price of the room.
+     *Constructor for Room.
+     number Room number.
+      price Price of the room.
      */
     Room(int number, double price) : roomNumber(number), price(price), isBooked(false) {}
     /*
-     * @brief Virtual destructor for Room.
+     * Virtual destructor for Room.
      */
     virtual ~Room() = default;
 
@@ -439,7 +441,7 @@ private:
         }
     }
 
-public:
+    // Private constructor for Singleton pattern
     Hotel() {
         loadCustomersFromFile();
         loadRoomsFromFile();
@@ -449,6 +451,19 @@ public:
             saveRoomsToFile();
         }
     }
+
+public:
+    // Singleton: single shared instance, created on first use
+    static Hotel& getInstance() {
+        static Hotel instance;
+        return instance;
+    }
+
+    // Prevent copying/moving so only one instance can exist
+    Hotel(const Hotel&) = delete;
+    Hotel& operator=(const Hotel&) = delete;
+    Hotel(Hotel&&) = delete;
+    Hotel& operator=(Hotel&&) = delete;
 
     ~Hotel() {
         saveCustomersToFile();
@@ -707,28 +722,45 @@ public:
     }
     // Booking and Cancellation
     void bookRoom(shared_ptr<Customer> customer) {
-        // Show available rooms before booking
-        viewAvailableRooms();
+        try {
+            string username = getUsernameByCustomer(customer);
 
-        int roomNumber = getValidatedRoomNumber();
+            // A user is allowed to book only one room at a time
+            for (const auto& [bookedRoom, bookedBy] : bookings) {
+                if (bookedBy == username) {
+                    throw BookingException("You have already booked room " +
+                        to_string(bookedRoom) + ". Only one room per user is allowed. "
+                        "Please cancel it before booking another.");
+                }
+            }
 
-        auto it = rooms.find(roomNumber);
-        if (it != rooms.end()) {
-            if (!it->second->getIsBooked()) {
-                it->second->setBooked(true);
-                bookings[roomNumber] = getUsernameByCustomer(customer); // Associate room with username
-                                saveCustomersToFile();
-                saveRoomsToFile();
-                saveBookingsToFile();
-                cout << "Room " << roomNumber << " booked successfully.\n";
+            // Show available rooms before booking
+            viewAvailableRooms();
+
+            int roomNumber = getValidatedRoomNumber();
+
+            auto it = rooms.find(roomNumber);
+            if (it != rooms.end()) {
+                if (!it->second->getIsBooked()) {
+                    it->second->setBooked(true);
+                    bookings[roomNumber] = username; // Associate room with username
+                    saveCustomersToFile();
+                    saveRoomsToFile();
+                    saveBookingsToFile();
+                    cout << "Room " << roomNumber << " booked successfully.\n";
+                }
+                else {
+                    throw BookingException("Room " + to_string(roomNumber) +
+                        " is already booked by user '" + bookings[roomNumber] + "'.");
+                }
             }
             else {
-                cout << "Room " << roomNumber << " is already booked by user '" << bookings[roomNumber] << "'.\n";
+                // This should not happen due to validation
+                throw BookingException("Invalid room number.");
             }
         }
-        else {
-            // This should not happen due to validation
-            cout << "Invalid room number.\n";
+        catch (const BookingException& e) {
+            cout << "Booking failed: " << e.what() << "\n";
         }
     }
 
@@ -826,7 +858,7 @@ public:
 
 // Main function
 int main() {
-    Hotel hotel;
+    Hotel& hotel = Hotel::getInstance();
 
     int initialChoice;
     do {
