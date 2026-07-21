@@ -460,10 +460,10 @@ public:
     }
 
     // Prevent copying/moving so only one instance can exist
-    Hotel(const Hotel&) = delete;
-    Hotel& operator=(const Hotel&) = delete;
-    Hotel(Hotel&&) = delete;
-    Hotel& operator=(Hotel&&) = delete;
+    Hotel(const Hotel&) = delete; // copy constructor 
+    Hotel& operator=(const Hotel&) = delete; // copy assignment operator 
+    Hotel(Hotel&&) = delete; // move operator 
+    Hotel& operator=(Hotel&&) = delete; // move assignment operator
 
     ~Hotel() {
         saveCustomersToFile();
